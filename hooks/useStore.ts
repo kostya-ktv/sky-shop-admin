@@ -1,13 +1,14 @@
 import prismadb from '@/lib/prisma.db';
 import useUser from './useUser';
-import {redirect} from 'next/navigation';
+import {redirect, usePathname} from 'next/navigation';
 
 const useStore = async (options?: {
   storeId?: string;
+  disableAuth?: boolean;
   redirectToStore?: boolean;
 }) => {
-  const {userId} = useUser();
-
+  const {userId} = useUser(options?.disableAuth);
+  const pathname = usePathname();
   const params: {userId: string; id?: string} = {
     userId,
   };
@@ -18,7 +19,7 @@ const useStore = async (options?: {
     where: params,
   });
   if (store && options?.redirectToStore) redirect(`/${store.id}`);
-  if (!store) redirect('/');
+  if (!store && pathname !== '/') redirect('/');
 
   return {
     store,

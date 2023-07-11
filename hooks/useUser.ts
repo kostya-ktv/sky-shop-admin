@@ -1,12 +1,11 @@
 import {auth} from '@clerk/nextjs';
 import {redirect} from 'next/navigation';
 
-const useUser = () => {
-  const {userId, user} = auth();
-  if (!user || !userId) redirect('/sign-in');
+const useUser = (disableRedirect?: boolean) => {
+  const {userId} = auth();
+  if (!userId && !disableRedirect) redirect('/sign-in');
   return {
-    user,
-    userId,
+    userId: userId as string,
   };
 };
 export default useUser;
