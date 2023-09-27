@@ -1,5 +1,7 @@
-import useStore from '@/hooks/useStore';
 import {SettingsForm} from './components/SettingsForm';
+import {redirect} from 'next/navigation';
+import {auth} from '@clerk/nextjs';
+import prismadb from '@/lib/prisma.db';
 
 interface SettingsPageProps {
   params: {
@@ -7,7 +9,22 @@ interface SettingsPageProps {
   };
 }
 const SettingsPage: React.FC<SettingsPageProps> = async ({params}) => {
-  // const {store} = await useStore();
+  const {userId} = auth();
+
+  if (!userId) {
+    redirect('/sign-in');
+  }
+
+  const store = await prismadb.store.findFirst({
+    where: {
+      id: params.storeId,
+      userId,
+    },
+  });
+
+  if (!store) {
+    redirect('/');
+  }
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6 ">
